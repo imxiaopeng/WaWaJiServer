@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import com.zego.base.utils.AESUtil;
 import com.zego.base.utils.AppLogger;
 import com.zego.base.utils.PrefUtil;
+import com.zego.zegowawaji_server.KeyConstants;
 import com.zego.zegowawaji_server.ZegoApplication;
 import com.zego.zegoliveroom.ZegoLiveRoom;
 import com.zego.zegoliveroom.callback.IZegoCustomCommandCallback;
@@ -29,6 +30,8 @@ import org.json.JSONObject;
 
 import java.util.List;
 import java.util.UUID;
+
+import static com.zego.zegowawaji_server.KeyConstants.INTERVAL_WAIT_CONFIRM;
 
 /**
  * <p>Copyright © 2017 Zego. All rights reserved.</p>
@@ -764,7 +767,7 @@ public class ZegoRoomCallback implements IZegoRoomCallback {
         Message message = new Message();
         message.what = HandlerImpl.MSG_WAIT_CONFIRM;
         message.setData(userData);
-        mHandler.sendMessageDelayed(message, HandlerImpl.INTERVAL_WAIT_CONFIRM);
+        mHandler.sendMessageDelayed(message, INTERVAL_WAIT_CONFIRM);
     }
 
     // 在 Work 线程处理游戏结果应答指令
@@ -810,7 +813,7 @@ public class ZegoRoomCallback implements IZegoRoomCallback {
             message.what = HandlerImpl.MSG_WAIT_REAPPOINTMENT;
 
             // 有些客户端在处理继续玩时，等待用户确认后才发预约指令，所以需要等待 16S
-            mHandler.sendMessageDelayed(message, HandlerImpl.INTERVAL_WAIT_CONFIRM);
+            mHandler.sendMessageDelayed(message, INTERVAL_WAIT_CONFIRM);
 
         } else {
             setIdleAndNotifyNextPlayerInWorkThread("receive game result reply, but don't continue");
@@ -1166,7 +1169,7 @@ public class ZegoRoomCallback implements IZegoRoomCallback {
 
         static final public int MSG_RENOTITY_NEXT_PLAYER = 0x7; // 当调用 notifyNextPlayerIfNeed 时，发现还没有收到下位机返回游戏结果，此时等待一秒后重新通知
 
-        static final public int INTERVAL_WAIT_CONFIRM = (2 + 6) * 1000;// 发送开始指令后，等待16s(比客户端多6s)开始游戏，否则视为放弃（此处业务侧可能有付费流程，所以需要等待至少 10 秒）
+        final public int INTERVAL_WAIT_CONFIRM = KeyConstants.INTERVAL_WAIT_CONFIRM;// 发送开始指令后，等待16s(比客户端多6s)开始游戏，否则视为放弃（此处业务侧可能有付费流程，所以需要等待至少 10 秒）
 
         static final public int INTERVAL_WAIT_RECEIVE_DEVICE_RESULT = 15000; // 等待下位机返回结果(理论值是3秒，目前实测可能会有12秒才返回的情况)，客户端等待时间必须大于该值，推荐 20S
 
